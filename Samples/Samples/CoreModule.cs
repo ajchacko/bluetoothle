@@ -1,5 +1,5 @@
 ﻿using System;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.Notifications;
 using Acr.Settings;
 using Acr.UserDialogs;
@@ -17,7 +17,7 @@ namespace Samples
             base.Load(builder);
 
             builder
-                .Register(x => BleAdapter.Current)
+                .Register(x => CrossBleAdapter.Current)
                 .As<IAdapter>()
                 .SingleInstance();
 

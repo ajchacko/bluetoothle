@@ -2,11 +2,13 @@
 
 This is a small little plugin that checks and hooks to standard heart rate sensors
 
+PLEASE NOTE THAT THIS DOES NOT NECESSARILY WORK WITH EVERY HEART SENSOR ON THE MARKET.
+
 ## Scan for Heart Rate sensors
 ```csharp
 // using the adapter, use the filter extension
 // FYI: a lot of heart rate sensors do not advertise the service UUID so they end up getting filtered out by this method
-BleAdapter
+CrossBleAdapter
     .Current
     .ScanForHeartRateSensors()
     .Subscribe(scanResult => {});

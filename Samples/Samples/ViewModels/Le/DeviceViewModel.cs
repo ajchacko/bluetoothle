@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Windows.Input;
-using Acr.Ble;
+using Plugin.BluetoothLE;
 using Acr.UserDialogs;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -32,7 +34,13 @@ namespace Samples.ViewModels.Le
                     // don't cleanup connection - force user to d/c
                     if (this.device.Status == ConnectionStatus.Disconnected)
                     {
-                        await this.device.Connect();
+                        using (var cancelSrc = new CancellationTokenSource())
+                        {
+                            using (this.Dialogs.Loading("Connecting", cancelSrc.Cancel, "Cancel"))
+                            {
+                                await this.device.Connect().ToTask(cancelSrc.Token);
+                            }
+                        }
                     }
                     else
                     {
@@ -46,7 +54,7 @@ namespace Samples.ViewModels.Le
             });
             this.PairToDevice = ReactiveCommand.CreateFromTask(async x =>
             {
-                if (!this.device.IsPairingRequestSupported)
+                if (!this.device.Features.HasFlag(DeviceFeatures.PairingRequests))
                 {
                     this.Dialogs.Alert("Pairing is not supported on this platform");
                 }
@@ -62,7 +70,7 @@ namespace Samples.ViewModels.Le
             this.RequestMtu = ReactiveCommand.CreateFromTask(
                 async x =>
                 {
-                    if (!this.device.IsMtuRequestAvailable)
+                    if (!this.device.Features.HasFlag(DeviceFeatures.MtuRequests))
                     {
                         this.Dialogs.Alert("MTU Request not supported on this platform");
                     }
